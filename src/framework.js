@@ -1,14 +1,23 @@
 var contactSearchCallback;
 
+var urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+var activeClientId = urlParams.get("client_id") || "6c42334c-ed7e-47a6-b68c-4197684df3bc";
+
 window.Framework = {
     config: {
         name:"ExampleGitHubApp",
         clientIds: {
-            'mypurecloud.com': '',
-            'mypurecloud.ie': '',
-            'mypurecloud.com.au': '',
-            'mypurecloud.jp': '',
-            'mypurecloud.de': ''
+            'mypurecloud.com': activeClientId,
+            'mypurecloud.com.au': activeClientId,
+            'usw2.pure.cloud': activeClientId,
+            'mypurecloud.ie': activeClientId,
+            'mypurecloud.de': activeClientId,
+            'euw2.pure.cloud': activeClientId,
+            'mypurecloud.jp': activeClientId,
+            'apne2.pure.cloud': activeClientId,
+            'aps1.pure.cloud': activeClientId,
+            'sae1.pure.cloud': activeClientId,
+            'cac1.pure.cloud': activeClientId,
         },
         customInteractionAttributes: ['PT_URLPop', 'PT_SearchValue', 'PT_TransferContext'],
         settings: {
@@ -50,35 +59,43 @@ window.Framework = {
         ]);
 
         window.addEventListener("message", function(event) {
-            try {
-                var message = JSON.parse(event.data);
-                if(message){
-                    if(message.type == "clickToDial"){
-                        window.PureCloud.clickToDial(message.data);
-                    } else if(message.type == "addAssociation"){
-                        window.PureCloud.addAssociation(message.data);
-                    }else if(message.type == "addAttribute"){
-                        window.PureCloud.addCustomAttributes(message.data);
-                    }else if(message.type == "addTransferContext"){
-                        window.PureCloud.addTransferContext(message.data);
-                    }else if(message.type == "sendContactSearch"){
-                        if(contactSearchCallback) {
-                            contactSearchCallback(message.data);
-                        }
-                    }else if(message.type == "updateUserStatus"){
-                        window.PureCloud.User.updateStatus(message.data);
-                    }else if(message.type == "updateInteractionState"){
-                        window.PureCloud.Interaction.updateState(message.data);
-                    }else if(message.type == "setView"){
-                        window.PureCloud.User.setView(message.data);
-                    }else if(message.type == "updateAudioConfiguration"){
-                        window.PureCloud.User.Notification.setAudioConfiguration(message.data);
-                    }else if(message.type == "sendCustomNotification"){
-                        window.PureCloud.User.Notification.notifyUser(message.data);
-                    }
+            var message;
+            if (typeof event.data === "string") {
+                try {
+                    message = JSON.parse(event.data);
+                } catch (e) {
+                    return;
                 }
-            } catch {
-                //ignore if you can not parse the payload into JSON
+            } else if (typeof event.data === "object" && event.data !== null) {
+                message = event.data;
+            } else {
+                return;
+            }
+
+            if (message) {
+                if(message.type == "clickToDial"){
+                    window.PureCloud.clickToDial(message.data);
+                } else if(message.type == "addAssociation"){
+                    window.PureCloud.addAssociation(message.data);
+                }else if(message.type == "addAttribute"){
+                    window.PureCloud.addCustomAttributes(message.data);
+                }else if(message.type == "addTransferContext"){
+                    window.PureCloud.addTransferContext(message.data);
+                }else if(message.type == "sendContactSearch"){
+                    if(contactSearchCallback) {
+                        contactSearchCallback(message.data);
+                    }
+                }else if(message.type == "updateUserStatus"){
+                    window.PureCloud.User.updateStatus(message.data);
+                }else if(message.type == "updateInteractionState"){
+                    window.PureCloud.Interaction.updateState(message.data);
+                }else if(message.type == "setView"){
+                    window.PureCloud.User.setView(message.data);
+                }else if(message.type == "updateAudioConfiguration"){
+                    window.PureCloud.User.Notification.setAudioConfiguration(message.data);
+                }else if(message.type == "sendCustomNotification"){
+                    window.PureCloud.User.Notification.notifyUser(message.data);
+                }
             }
         });
     },

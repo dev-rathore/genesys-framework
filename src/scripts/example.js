@@ -20,22 +20,35 @@ document.addEventListener('DOMContentLoaded',function(){
     document.getElementById('view-settings').addEventListener("click", setView);
 
     window.addEventListener("message", function(event) {
-        var message = JSON.parse(event.data);
+        var message;
+        if (typeof event.data === "string") {
+            try {
+                message = JSON.parse(event.data);
+            } catch (e) {
+                return;
+            }
+        } else if (typeof event.data === "object" && event.data !== null) {
+            message = event.data;
+        } else {
+            return;
+        }
+
         if(message){
+            var rawDataStr = typeof event.data === "string" ? event.data : JSON.stringify(event.data);
             if(message.type == "screenPop"){
-                document.getElementById("screenPopPayload").value = event.data;
+                document.getElementById("screenPopPayload").value = rawDataStr;
             } else if(message.type == "processCallLog"){
-                document.getElementById("processCallLogPayLoad").value = event.data;
+                document.getElementById("processCallLogPayLoad").value = rawDataStr;
             } else if(message.type == "openCallLog"){
-                document.getElementById("openCallLogPayLoad").value = event.data;
+                document.getElementById("openCallLogPayLoad").value = rawDataStr;
             } else if(message.type == "interactionSubscription"){
-                document.getElementById("interactionSubscriptionPayload").value = event.data;
+                document.getElementById("interactionSubscriptionPayload").value = rawDataStr;
             } else if(message.type == "userActionSubscription"){
-                document.getElementById("userActionSubscriptionPayload").value = event.data;
+                document.getElementById("userActionSubscriptionPayload").value = rawDataStr;
             } else if(message.type == "notificationSubscription"){
-                document.getElementById("notificationSubscriptionPayload").value = event.data;
+                document.getElementById("notificationSubscriptionPayload").value = rawDataStr;
             } else if(message.type == "contactSearch") {
-                document.getElementById("searchText").innerHTML = ": " + message.data.searchString;
+                document.getElementById("searchText").innerHTML = ": " + (message.data ? message.data.searchString : "");
                 sendContactSearch();
             }
         }
